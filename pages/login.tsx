@@ -21,7 +21,7 @@ const LoginPage: React.FC = () => {
   const [pass, setPass] = useState('password');
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
-  const CAPTCHA_KEY = process.env.CAPTCHA_KEY;
+  const CAPTCHA_KEY = process.env.CAPTCHA_KEY || '';
 
   const router = useRouter();
   const toast = useToast();
