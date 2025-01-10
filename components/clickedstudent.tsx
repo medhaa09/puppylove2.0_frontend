@@ -7,12 +7,14 @@ interface ClickedStudentsProps {
   clickedStudents: Student[];
   onUnselectStudent: (studentRoll: string) => void;
   hearts_submitted: boolean;
+  topSongs:string[];
 }
 
 const ClickedStudents: React.FC<ClickedStudentsProps> = ({
   clickedStudents,
   onUnselectStudent,
   hearts_submitted,
+  topSongs,
 }) => {
   return (
     <div className="clicked-students-container">
@@ -23,6 +25,7 @@ const ClickedStudents: React.FC<ClickedStudentsProps> = ({
           onClick={() => onUnselectStudent(student.i)}
           unselectButton={true}
           hearts_submitted={hearts_submitted}
+          topSongs={topSongs}
         />
       ))}
     </div>

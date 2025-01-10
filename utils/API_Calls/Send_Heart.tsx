@@ -21,7 +21,8 @@ async function fetchPubKeys() {
 export const SendHeart = async (
   senderId: string,
   receiverIds: string[],
-  Submit: boolean
+  selectedSongIds:string[],
+  Submit: boolean,
 ) => {
   try {
     if (!isPubliKAvail) {
@@ -107,12 +108,16 @@ export const SendHeart = async (
           genderofsender: Gender,
           enc1: enc[0],
           sha1: sha[0],
+          song1:selectedSongIds[0],
           enc2: enc[1],
           sha2: sha[1],
+          song2:selectedSongIds[1],
           enc3: enc[2],
           sha3: sha[2],
+          song3:selectedSongIds[2],
           enc4: enc[3],
           sha4: sha[3],
+          song4:selectedSongIds[3],
           returnhearts: ReturnHearts,
         }),
       });

@@ -1,6 +1,14 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { Button, useToast, Box } from '@chakra-ui/react';
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+} from '@chakra-ui/react';
 import { FaSignOutAlt } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import styles from '../styles/login.module.css';
@@ -19,7 +27,7 @@ import { handle_Logout } from '@/utils/API_Calls/login_api';
 import { Id, Submit } from '../utils/UserData';
 import { search_students, Student } from '@/utils/API_Calls/search';
 import Image from 'next/image';
-
+import SongSelector from '@/components/SongSelector';
 const SERVER_IP = process.env.SERVER_IP;
 
 const New = () => {
@@ -32,7 +40,15 @@ const New = () => {
   const [activeUsers, setActiveUsers] = useState<string[]>([]);
   const [hearts_submitted, set_hearts_submitted] = useState(Submit);
   const [clickedStudents, setClickedStudents] = useState<Student[]>([]);
-  const [isShowStud, setShowStud] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  const openModal = () => setModalOpen(true);
+  const closeModal = () => setModalOpen(false);
+  const [selectedSongIds, setSelectedSongIds] = useState<string[]>([]);
+  const handleConfirm = (selectedSongs: string[]) => {
+   // console.log('Selected Song IDs:', selectedSongIds);
+    setSelectedSongIds(selectedSongs);
+  };
 
   useEffect(() => {
     toast.closeAll();
@@ -165,11 +181,12 @@ const New = () => {
     for (let j = 0; j < clickedStudents.length; j++) {
       const id: string = clickedStudents[j].i;
       receiverIds[j] = id;
+     
     }
     for (let j = clickedStudents.length; j < 4; j++) {
       receiverIds[j] = '';
     }
-    const isValid = await SendHeart(Id, receiverIds, Submit);
+    const isValid = await SendHeart(Id, receiverIds, selectedSongIds,Submit);
     if (isValid && Submit) {
       toast({
         title: 'HEARTS SENT',
@@ -275,9 +292,9 @@ const New = () => {
     setStudents(studentData);
   };
 
-  const handleShowStud = () => {
-    setShowStud(!isShowStud);
-  };
+  // const handleShowStud = () => {
+  //   setShowStud(!isShowStud);
+  // };
 
   const stylesss = {
     backgroundImage: `url("https://home.iitk.ac.in/~${user?.u}/dp"), url("https://oa.cc.iitk.ac.in/Oa/Jsp/Photo/${user?.i}_0.jpg"), url("/dummy.png")`,
@@ -361,8 +378,10 @@ const New = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog> */}
-
-          <div className="section_2">
+      <div className="section_2">
+      <SongSelector onConfirm={handleConfirm}/>
+      </div>
+          {/* <div className="section_2">
             <div className="logout-button-div">
               <motion.div
                 whileHover={{ scale: 1.1 }}
@@ -378,8 +397,6 @@ const New = () => {
               >
                 {isShowStud ? 'Hide' : 'Show'}
               </motion.div>
-
-              {/* <button className="show-hide" style={{marginBottom:"8px", position: "sticky", top: "0px"}} onClick={handleShowStud} type="button">{isShowStud ? "Hide" : "Show"}</button> */}
             </div>
             <div>
               {isShowStud ? (
@@ -398,7 +415,24 @@ const New = () => {
                 ''
               )}
             </div>
-          </div>
+          </div> */}
+
+{/* Button to open the modal */}
+<div style={{ textAlign: 'center', marginTop: '1rem' }}>
+  <Button
+    colorScheme="pink"
+    bg="pink.400" 
+    _hover={{
+      transform: "scale(1.1)", 
+      transition: "transform 0.2s ease-in-out" 
+    }}
+    size="lg" 
+    onClick={openModal}
+  >
+    Show Selections
+  </Button>
+</div>
+
         </div>
         <div className="section-B">
           <div className="section_3">
@@ -446,7 +480,98 @@ const New = () => {
           <GoToTop />
         </div>
       </div>
-      <Clear />
+  {/* Modal Implementation */}
+  <Modal isOpen={isModalOpen} onClose={closeModal} size="lg">
+  <ModalOverlay />
+  <ModalContent bg="white" color="black" borderRadius="md" padding="0.6rem" maxWidth="70%" width="100%"
+  >
+    <ModalHeader>My Selections</ModalHeader>
+    <ModalCloseButton />
+
+    <ModalBody
+      style={{
+        display: 'flex',
+        flexDirection: 'column', // Adjust layout for smaller screens
+        gap: '1rem',
+        maxHeight: '80vh', // Prevent overflowing
+        overflowY: 'auto', // Add scrolling for long content
+      }}
+    >
+      {clickedStudents.length === 0 ? (
+        <h2 style={{ textAlign: 'center' }}>Use search to select someone</h2>
+      ) : (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column', // Stack columns for small screens
+            gap: '2rem',
+          }}
+        >
+          {/* Column for Student Cards */}
+          <div>
+            <ClickedStudent
+                      clickedStudents={clickedStudents}
+                      onUnselectStudent={handleUnselectStudent}
+                      hearts_submitted={hearts_submitted} topSongs={selectedSongIds}/>
+          </div>
+
+          {/* Column for Songs */}
+          <div>
+            {selectedSongIds.length === 0 ? (
+              <h3 style={{ color: 'black', textAlign: 'center' }}>
+                Please select your top songs as well!
+              </h3>
+            ) : ("")
+              // <div>
+              //   {clickedStudents.map((student, index) => (
+              //     <div
+              //       key={student._id}
+              //       style={{
+              //         marginBottom: '1rem',
+              //         display: 'flex',
+              //         alignItems: 'center',
+              //         justifyContent: 'center',
+              //         flexDirection: 'column', 
+              //       }}
+              //     >
+              //       {selectedSongIds[index] ? (
+              //         <iframe
+              //           src={`https://open.spotify.com/embed/track/${selectedSongIds[index]}`}
+              //           width="250"
+              //           height="200"
+              //           allow="autoplay; encrypted-media"
+              //           allowFullScreen
+              //           style={{ borderRadius: '8px' }}
+              //         ></iframe>
+              //       ) : (
+              //         <div
+              //           style={{
+              //             width: '250px',
+              //             height: '200px',
+              //             display: 'flex',
+              //             alignItems: 'center',
+              //             justifyContent: 'center',
+              //             border: '1px dashed #ccc',
+              //             borderRadius: '8px',
+              //           }}
+              //         >
+              //           <p style={{ textAlign: 'center', color: '#888' }}>
+              //             No song selected
+              //           </p>
+              //         </div>
+              //       )}
+              //     </div>
+              //   ))}
+              // </div>
+            }
+          </div>
+        </div>
+      )}
+    </ModalBody>
+  </ModalContent>
+</Modal>
+
+    <Clear />
     </div>
   );
 };
