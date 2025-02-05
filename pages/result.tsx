@@ -21,13 +21,13 @@ import { get_result } from '@/utils/API_Calls/get_results';
 import { Button, useToast } from '@chakra-ui/react';
 import { handle_Logout } from '@/utils/API_Calls/login_api';
 import { FaSignOutAlt } from 'react-icons/fa';
-
+import YoutubeAudioPlayer from '@/components/YoutubeAudioPlayer';
 const ResultPage = () => {
   const router = useRouter();
   const toast = useToast();
   const [user, setUser] = useState<Student>({} as Student);
   const [Matches, setMatches] = useState<Student[]>([]);
-
+const [Songs, setSongs]=useState<string>();
   useEffect(() => {
     toast.closeAll();
   }, []);
@@ -43,16 +43,27 @@ const ResultPage = () => {
   useEffect(() => {
     const show_result = async () => {
       await get_result();
-      if (Matched_Ids[0] == '') {
+     
+      if (Matched_Ids[0]?.id == '') {
         return;
       }
       for (let j = 0; j < Matched_Ids.length; j++) {
-        const data: Array<Student> = search_students(Matched_Ids[j]);
+        const data: Array<Student> = search_students( Matched_Ids[j].id);
         if (!data.length) {
           return;
         }
         const student = data[0];
-
+        const studentSong = Matched_Ids[j].song; 
+        
+        if(studentSong)
+        {
+        setSongs(studentSong);
+        console.log(Songs);
+        }
+        else{
+          setSongs("");
+        }
+        console.log(studentSong)
         if (!Matches.includes(student)) {
           setMatches((prev) => [...prev, student]);
         }
@@ -60,6 +71,7 @@ const ResultPage = () => {
     };
     show_result();
     // console.log(Matches)
+    
   }, []);
 
   const Logout = async () => {
@@ -137,6 +149,7 @@ const ResultPage = () => {
             <div className="section_3r">
               <h2 style={{ fontSize: '25px', fontWeight: 'bold' }}>Matches</h2>
               <Results Matches={Matches} />
+              <YoutubeAudioPlayer youtubeUrl={`https://www.youtube.com/watch?v=${Songs}`}></YoutubeAudioPlayer>
             </div>
           ) : (
             <div

@@ -43,6 +43,17 @@ const YoutubeAudioPlayer: React.FC<YoutubeAudioPlayerProps> = ({ youtubeUrl }) =
     }
   }, [youtubeUrl]);
 
+  const togglePlayPause = () => {
+    if (playerRef.current) {
+      if (playing) {
+        playerRef.current.getInternalPlayer()?.pauseVideo();
+      } else {
+        playerRef.current.getInternalPlayer()?.playVideo();
+      }
+      setPlaying(!playing);
+    }
+  };
+
   return (
     <div
       style={{
@@ -78,14 +89,14 @@ const YoutubeAudioPlayer: React.FC<YoutubeAudioPlayerProps> = ({ youtubeUrl }) =
 
           <div style={{ flex: 1, paddingLeft: "10px" }}>
             <h4
-               style={{
+              style={{
                 margin: "0",
                 fontSize: "16px",
-                whiteSpace: "normal", 
+                whiteSpace: "normal",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 display: "-webkit-box",
-                WebkitLineClamp: 2, // Limit to 2 lines
+                WebkitLineClamp: 2,
                 WebkitBoxOrient: "vertical",
                 wordBreak: "break-word",
               }}
@@ -105,10 +116,12 @@ const YoutubeAudioPlayer: React.FC<YoutubeAudioPlayerProps> = ({ youtubeUrl }) =
               height="0px"
               controls={false}
               config={{ youtube: { playerVars: { showinfo: 0, controls: 0 } } }}
+              onPlay={() => setPlaying(true)}
+              onPause={() => setPlaying(false)}
             />
 
             <button
-              onClick={() => setPlaying(!playing)}
+              onClick={togglePlayPause}
               style={{
                 cursor: "pointer",
                 background: "transparent",

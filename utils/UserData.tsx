@@ -11,7 +11,8 @@ export let Submit = false;
 // IDs of receivers of heart from User
 export let receiverIds: string[] = [];
 export let receiverSongs: string[] = [];
-export let Matched_Ids: string[] = [];
+//export let Matched_Ids: string[] = [];
+export let Matched_Ids: { id: string; song: string }[] = [];
 export let Matches: Student[] = [];
 export let admin_pulished: boolean = false;
 export let user: Student = {} as Student;
@@ -52,10 +53,6 @@ export const setAdminPublished = (publish: boolean) => {
   admin_pulished = publish;
 };
 
-export const setMatchedIds = (newIds: string[]) => {
-  Matched_Ids = newIds;
-};
-
 export function Set_Id(id: string) {
   Id = id;
 }
@@ -75,7 +72,31 @@ export function Set_PubK(pubKey_login: string) {
 export function Set_Submit(submit: boolean) {
   Submit = submit;
 }
+export const setMatchedIds = async (newMatchedData: { id: string; song: string }[]) => {
+  let updatedMatchedData: { id: string; song: string }[] = [];
+ 
+  for (let i = 0; i < newMatchedData.length; i++) {
+    const song_enc = newMatchedData[i].song;
+   
+    let song_plain: string = await Decryption(song_enc, PrivK); 
+   console.log(song_plain)
+    if (song_plain === 'Fail') {
+      updatedMatchedData.push({
+        id: newMatchedData[i].id,
+        song: '' 
+      });
+    } else {
+      const parts = song_plain.split('-'); 
+      updatedMatchedData.push({
+        id: newMatchedData[i].id,
+        song: parts[2]
+      });
+    }
+  }
 
+  Matched_Ids = updatedMatchedData;
+  console.log(Matched_Ids)
+};
 // Send Heart
 export interface Heart {
   enc: string;
@@ -147,7 +168,7 @@ export async function Set_Data(data: string) {
       } else {
         const parts = song_plain.split('-'); 
         receiverSongs[i] = parts[2];
-        console.log(receiverSongs[i]) 
+       
       }
     }
   }
@@ -175,6 +196,7 @@ interface heart {
 interface ReturnHeart {
   enc: string;
   sha: string;
+  song : string;
 }
 
 export let ReturnHearts: ReturnHeart[] = [];

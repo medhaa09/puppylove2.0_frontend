@@ -35,6 +35,7 @@ export const SendHeart = async (
     const sha_encrypt: string[] = [];
     const ids_encrypt: string[] = [];
     const song_encrypt: string[] = [];
+    const song_encryptsend: string[]=[];
     const R1: number = parseInt(senderId);
     for (const id of receiverIds) {
       if (id === '') {
@@ -42,6 +43,7 @@ export const SendHeart = async (
         sha.push('');
         ids_encrypt.push('');
         song_encrypt.push('');
+        song_encryptsend.push('');
         continue;
       }
       const R2: number = parseInt(id);
@@ -54,7 +56,6 @@ export const SendHeart = async (
       if (R1 < R2) {
         const id_plain: string = R1.toString() + '-' + R2.toString() + '-' + R3;
         id_encrypt = await Encryption(id_plain, PubK);
-      
         const sha_: string = await SHA256(id_plain);
         sha.push(sha_);
         const sha_encrypt_: string = await Encryption_AES(sha_, PrivK);
@@ -76,11 +77,13 @@ export const SendHeart = async (
      const songId = selectedSongs[id] || '';
      if (songId) {
        const song_plain: string = `${R1}-${R2}-${songId}-${R3}`;
-       
        const song_enc: string = await Encryption(song_plain, PubK);
+       const song_enc2 : string= await Encryption(song_plain, pubKey_);
        song_encrypt.push(song_enc);
+       song_encryptsend.push(song_enc2);
      } else {
        song_encrypt.push(''); 
+       song_encryptsend.push('');
      }
      
     }
@@ -129,12 +132,16 @@ export const SendHeart = async (
           genderofsender: Gender,
           enc1: enc[0],
           sha1: sha[0],
+          song1: song_encryptsend[0],
           enc2: enc[1],
           sha2: sha[1],
+          song2: song_encryptsend[1],
           enc3: enc[2],
           sha3: sha[2],
+          song3: song_encryptsend[2],
           enc4: enc[3],
           sha4: sha[3],
+          song4: song_encryptsend[3],
           returnhearts: ReturnHearts,
         }),
       });
