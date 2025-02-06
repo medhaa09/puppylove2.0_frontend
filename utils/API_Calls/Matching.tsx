@@ -1,5 +1,5 @@
 import { Decryption, Decryption_AES } from '../Encryption';
-import { PrivK, Sent_Hearts, Hearts } from '../UserData';
+import { PrivK, Sent_Hearts, Hearts,receiverSongs,receiverIds } from '../UserData';
 const SERVER_IP = process.env.SERVER_IP;
 
 export const FetchReturnedHearts = async () => {
@@ -29,21 +29,42 @@ export const FetchReturnedHearts = async () => {
         // console.log(my_sha)
         if (my_sha === sha) {
           const id_plain: string = await Decryption(heart.id_encrypt, PrivK);
-          // console.log(id_plain)
-          await match(encoded_sha, id_plain);
+         console.log(id_plain)
+          const id_parts = id_plain.split('-');
+          if (id_parts.length !== 3) {
+            console.error(`Invalid id_plain format: ${id_plain}`);
+            return;
+          }
+          const R1 = id_parts[0];
+          const R2 = id_parts[1];
+          let receiverIndex = -1;
+
+          if (receiverIds.indexOf(R1) !== -1) {
+          receiverIndex = receiverIds.indexOf(R1)
+          } else if (receiverIds.indexOf(R2) !== -1) {
+          receiverIndex = receiverIds.indexOf(R2);
+          }
+          console.log(receiverIndex);
+          let receiver_song = "Unknown Song"; 
+          if (receiverIndex !== -1) {
+            receiver_song = receiverSongs[receiverIndex];
+            console.log(receiver_song)
+          }
+          await match(encoded_sha, id_plain,receiver_song);
         }
       }
     })
   );
 };
 
-const match = async (enc: string, id_plain: string) => {
+const match = async (enc: string, id_plain: string,song: string) => {
   const res = await fetch(`${SERVER_IP}/users/verifyreturnhearts`, {
     method: 'POST',
     credentials: 'include', // For CORS
     body: JSON.stringify({
       enc: enc,
       secret: id_plain,
+      song:song,
     }),
   });
   if (!res.ok) {
